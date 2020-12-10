@@ -1,0 +1,38 @@
+version: 1.1
+nodes:
+  toggle = () => document.getElementById('test').classList.toggle(className)
+  button = require("/utils/sheet.js").button
+  input = require("/utils/sheet.js").input
+layout:
+[,
+  [,,
+    {
+      "value": "Toggle class function:"
+    }
+  ],
+  [,,
+    {
+      "node": "toggle"
+    }
+  ],,
+  [,,
+    {
+      "value": "Button:"
+    }
+  ],
+  [,,
+    {
+      "node": "button"
+    }
+  ],,
+  [,,
+    {
+      "value": "Input:"
+    }
+  ],
+  [,,
+    {
+      "node": "input"
+    }
+  ]
+]
