@@ -1,0 +1,16 @@
+name: Sync repo with test.ellx.io
+
+on:
+  push:
+    branches:
+      - test
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: ellxoft/ellx-sync@master
+        with:
+          ellx-url: https://test-api.ellx.io
+          github-token: ${{ secrets.GITHUB_TOKEN }}

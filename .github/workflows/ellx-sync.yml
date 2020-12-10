@@ -1,0 +1,17 @@
+name: Sync repo with Ellx
+
+on:
+  push:
+    branches:
+      - main
+      - "release/**"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: ellxoft/ellx-sync@master
+        with:
+          ellx-url: https://api.ellx.io
+          github-token: ${{ secrets.GITHUB_TOKEN }}
