@@ -1,33 +1,10 @@
-import config from "./lib/config.js";
+import getConfig from "./lib/config.js";
 import getParser from "./lib/parser.js";
+import keyframes from "./lib/keyframes.js";
 import { preflight, variables } from "./lib/styles.js";
+import { theme } from "./lib/selector.js";
 
-let parse = () => { };
-
-const classes = new Set();
-
-const s = document.createElement('style');
-s.setAttribute('type', 'text/css');
-
-export function appendStyle(css) {
-  if (s.styleSheet) {
-    s.styleSheet.cssText = css;
-  } else {
-    s.appendChild(document.createTextNode(css));
-  }
-  document.head.appendChild(s);
-}
-
-const filterClasses = i => Boolean(i) && !i.startsWith('svelte-') && !classes.has(i);
-
-function process(c) {
-  const css = parse(c);
-  classes.add(c);
-
-  return css;
-}
-
-const onObserve = mutations => {
+const onObserve = (process, appendStyle, filterClasses) => mutations => {
   let styles = [...new Set(
     mutations
       .filter(t => t.type === 'attributes')
@@ -51,7 +28,7 @@ const onObserve = mutations => {
   appendStyle(styles);
 }
 
-const getInitialClasses = () => [...new Set(
+const getInitialClasses = (process, filterClasses) => [...new Set(
   [...document.querySelectorAll("*")]
     .map(i => i.classList.value.split(' '))
     .flat()
@@ -70,31 +47,66 @@ const observeClasses = (observer, container) => observer.observe(
   }
 );
 
-// TODO:
-// add container
-
 function mergeUserConfig(config, userConfig) {
-  //   if (userConfig.theme && userConfig.theme.extend) {
-  //     for (key in userConfig.theme.extend) {
-  //       config.theme[key] = typeof config.theme[key] === 'function'
-  //         ?
-  //     }
-  //   }
+  if (!userConfig || !userConfig.theme) return config;
+
+  const configTheme = theme(config.theme);
+
+  if (userConfig.theme.extend) {
+    for (key in userConfig.theme.extend) {
+      config.theme[key] = typeof config.theme[key] === 'function'
+        ? {
+        ...config.theme[key](configTheme),
+        ...userConfig.theme.extend[key],
+      } : {
+        ...config.theme[key],
+        ...userConfig.theme.extend[key],
+      };
+    }
+  }
+
   return {
     ...config,
-    ...userConfig,
+    theme: Object.keys(config.theme).reduce((acc, cur) => ({
+      ...acc,
+      [cur]: userConfig.theme[cur] || config.theme[cur]
+    }), {})
   };
 }
 
-export function init(container = document.querySelector('body'), userConfig = {}) {
-  const classObserver = new MutationObserver(onObserve);
-  const configMerged = mergeUserConfig(config, userConfig);
-  parse = getParser(configMerged);
+const s = document.createElement('style');
+s.setAttribute('type', 'text/css');
+
+function appendStyle(css) {
+  if (!css) return;
+
+  if (s.styleSheet) {
+    s.styleSheet.cssText = css;
+  } else {
+    s.appendChild(document.createTextNode(css));
+  }
+  document.head.appendChild(s);
+}
+
+export function init(userConfig, container = document.querySelector('body')) {
+  const classes = new Set();
+  const filterClasses = i => Boolean(i) && !i.startsWith('svelte-') && !classes.has(i);
+
+  const configMerged = mergeUserConfig(getConfig(), userConfig);
+  const parse = getParser(configMerged);
+
+  const process = c => {
+    const css = parse(c);
+    if (css) classes.add(c);
+    return css;
+  }
+
+  const classObserver = new MutationObserver(onObserve(process, appendStyle, filterClasses));
 
   observeClasses(classObserver, container);
-  const initialStyles = getInitialClasses();
+  const initialStyles = getInitialClasses(process, filterClasses);
 
-  appendStyle(preflight + variables(configMerged) + initialStyles);
+  appendStyle(preflight + variables(configMerged) + initialStyles + keyframes);
 
   return {
     unsubscribe: () => classObserver.disconnect(),

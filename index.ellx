@@ -3,47 +3,130 @@ nodes:
   toggle = () => document.getElementById('test').classList.toggle(className)
   button = require("/lib/sheet.js").button
   input = require("/lib/sheet.js").input
-  customConfig = {}
+  customConfig = require("/lib/sheet.js").customConfig
+  $1 = headlong.parse("text-red-500")
+  $2 = headlong.parse("sm:text-red-500")
+  $3 = headlong.parse("dark:text-red-500")
+  $4 = headlong.parse("text-light-blue-500")
+  $5 = headlong.parse("p-4")
+  $6 = headlong.parse("m-4")
+  $7 = headlong.parse("hover:not-italic")
+  $8 = headlong.parse("animation-pulse")
+  $12 = headlong.parse("container")
+  $11 = customHeadlong.parse("text-primary-500")
 layout:
-[,
-  [,,
+[
+  [,
     {
-      "value": "Toggle class function:"
+      "value": "Toggle:"
     }
   ],
-  [,,
+  [,
     {
       "node": "toggle"
     }
   ],,
-  [,,
+  [,
     {
       "value": "Button:"
     }
   ],
-  [,,
+  [,
     {
       "node": "button"
     }
   ],,
-  [,,
+  [,
     {
       "value": "Input:"
     }
   ],
-  [,,
+  [,
     {
       "node": "input"
     }
   ],,
-  [,,
+  [,
     {
       "value": "Custom config:"
     }
   ],
-  [,,
+  [,
     {
       "node": "customConfig"
+    }
+  ],,,,,
+  [,
+    {
+      "value": "T E S T S"
+    }
+  ],
+  [,
+    {
+      "value": "Keeping it simple for now, everything below must be not false"
+    }
+  ],,
+  [,
+    {
+      "node": "$1"
+    }
+  ],
+  [,
+    {
+      "node": "$2"
+    }
+  ],
+  [,
+    {
+      "node": "$3"
+    }
+  ],
+  [,
+    {
+      "node": "$4"
+    }
+  ],
+  [,
+    {
+      "node": "$5"
+    }
+  ],
+  [,
+    {
+      "node": "$6"
+    }
+  ],
+  [,
+    {
+      "node": "$7"
+    }
+  ],
+  [,
+    {
+      "node": "$8"
+    }
+  ],,
+  [,
+    {
+      "node": "$12"
+    }
+  ],,
+  [,
+    {
+      "value": "Headlong with custom config:"
+    },,,
+    {
+      "value": "Two instances on the same page are buggy"
+    }
+  ],
+  [,
+    {
+      "value": "// customHeadlong = init(customConfig)"
+    }
+  ],
+  [,
+    {
+      "node": "$11"
     }
   ]
 ]

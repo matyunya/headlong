@@ -2,8 +2,6 @@
 
 _Tailwind CSS on the fly without PostCSS_
 
-[README](https://matyunya-headlong.ellx.app/)
-
 Tailwind CSS produces thousands of classes most of which will never be used. Changes to the Tailwind configuration might take seconds to take effect, and who has seconds to waste these days? There are [articles](https://nystudio107.com/blog/speeding-up-tailwind-css-builds) describing how to speed up Tailwind build times indicating the problem.
 
 **Headlong** is a runtime version of Tailwind CSS which requires no PostCSS nor purging. Instead of generating all the classes beforehand it adds classes on the fly to the stylesheet whenever they are introduced in the DOM.
@@ -20,9 +18,15 @@ Headlong was built entirely using [Ellx](https://ellx.io). Here's [source code](
 
 { className = input({ label: "New class name", value: "text-fuchsia-500", size: 4 })}
 
-{ button({ label: "toggle", onClick: toggle, disabled: !className })}
+<div class="text-xs block my-8 font-mono p-2 bg-gray-100 items-center shadow-lg">
 
-<span id="test" class="block ring ring-red-100 p-4 my-8 font-mono hover:italic"> I am a Headlong test</span>
+{ parsed = headlong.parse(className) }
+
+</div>
+
+{ button({ label: "toggle", onClick: toggle, disabled: !parsed })}
+
+<span id="test" class="block ring hover:ring-8 transition duration-500 ring-red-100 p-4 my-8 font-mono hover:italic text-red-500 cursor-pointer hover:bg-light-blue-100 bg-opacity-0 hover:bg-opacity-50 rounded shadow-lg"> I am a Headlong test</span>
 
 ## Installation and usage
 
@@ -32,10 +36,13 @@ $ npm install headlong
 
 ```
 import headlong from "headlong";
-// or in ellx
-import headlong from "~matyunya/headlong";
 
-const { unsubscribe, config, classes, parse, apply } = headlong();
+const {
+  unsubscribe,
+  parse,
+  config,
+  apply, // not quite there yet
+} = headlong(config, containerEl);
 
 // ...
 
@@ -43,22 +50,22 @@ const { unsubscribe, config, classes, parse, apply } = headlong();
 unsubscribe();
 ```
 
-## Missing features
+## Roadmap
 
 - [x] Ring
 - [x] Divide
 - [x] Camelcased colors ("light-blue" is lightBlue in the default palette)
+- [x] "Extend" config section
+- [x] Preflight
+- [x] Container
 - [ ] `@apply` as a function
 - [ ] Combined selectors like ("sm:dark:hover:")
 - [ ] Negated values using css `calc` function relying on PostCSS plugin
 - [ ] Keyframes customization
-- [ ] "Extend" config section
-- [ ] Preflight
-- [ ] Container
 
 ## Classes
 
-Please refer to Tailwind [documentation](https://tailwindcss.com/docs) for all available classes.
+Please refer to Tailwind [documentation](https://tailwindcss.com/docs) for all available classes. Almost all of them work in headlong.
 
 ### Placeholder color and opacity
 
@@ -172,7 +179,7 @@ Please refer to Tailwind [documentation](https://tailwindcss.com/docs) for all a
 
 <div class="hidden">
 
-{ init(document.getElementById('md'), customConfig) }
+{ headlong = init({}, document.getElementById('md')) }
 
 </div>
 
