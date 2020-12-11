@@ -75,7 +75,7 @@ Please refer to Tailwind [documentation](https://tailwindcss.com/docs) for all a
 <input
   type="text"
   placeholder="test placeholder"
-  class="placeholder-red-500 placeholder-opacity-50 p-4 bg-red-100 my-8 block"
+  class="placeholder-red-500 outline-none placeholder-opacity-50 p-4 bg-red-100 my-8 block"
 />
 ```
 

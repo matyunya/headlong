@@ -12,6 +12,7 @@ nodes:
   $6 = headlong.parse("m-4")
   $7 = headlong.parse("hover:not-italic")
   $8 = headlong.parse("animation-pulse")
+  $13 = headlong.parse("outline-none")
   $12 = headlong.parse("container")
   $11 = customHeadlong.parse("text-primary-500")
 layout:
@@ -105,7 +106,12 @@ layout:
     {
       "node": "$8"
     }
-  ],,
+  ],
+  [,
+    {
+      "node": "$13"
+    }
+  ],
   [,
     {
       "node": "$12"
