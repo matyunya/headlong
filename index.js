@@ -1,11 +1,24 @@
-export { default as colors } from "./utils/colors.js";
-import { theme } from "./utils/selector.js";
-import config from "./utils/config.js";
-import parse, { appendStyle } from "./utils/parser.js";
+import config from "./lib/config.js";
+import getParser from "./lib/parser.js";
+import { preflight, variables } from "./lib/styles.js";
 
-let classes = new Set();
+let parse = () => { };
 
-const filterClases = i => Boolean(i) && !i.startsWith('svelte-') && !classes.has(i);
+const classes = new Set();
+
+const s = document.createElement('style');
+s.setAttribute('type', 'text/css');
+
+export function appendStyle(css) {
+  if (s.styleSheet) {
+    s.styleSheet.cssText = css;
+  } else {
+    s.appendChild(document.createTextNode(css));
+  }
+  document.head.appendChild(s);
+}
+
+const filterClasses = i => Boolean(i) && !i.startsWith('svelte-') && !classes.has(i);
 
 function process(c) {
   const css = parse(c);
@@ -20,7 +33,7 @@ const onObserve = mutations => {
       .filter(t => t.type === 'attributes')
       .map(i => (i.target.classList.value || "").split(' '))
       .flat()
-      .filter(filterClases)
+      .filter(filterClasses)
   )]
     .map(process)
     .filter(Boolean)
@@ -29,7 +42,7 @@ const onObserve = mutations => {
   styles += [...new Set(
     mutations
       .filter(f => f.type === 'childList' && f.addedNodes.length && f.addedNodes[0].classList) // only works on a single node
-      .map(i => (i.addedNodes[0].classList.value || "").split(' ')).flat().filter(filterClases))
+      .map(i => (i.addedNodes[0].classList.value || "").split(' ')).flat().filter(filterClasses))
   ]
     .map(process)
     .filter(Boolean)
@@ -43,7 +56,7 @@ const getInitialClasses = () => [...new Set(
     .map(i => i.classList.value.split(' '))
     .flat()
 )]
-  .filter(filterClases)
+  .filter(filterClasses)
   .map(process)
   .filter(Boolean)
   .join('\n');
@@ -57,31 +70,37 @@ const observeClasses = (observer, container) => observer.observe(
   }
 );
 
-export function init(container = document.querySelector('body')) {
-  const classObserver = new MutationObserver(onObserve);
+// TODO:
+// add container
 
-  // TODO: can defaults be anywhere?
-  const ringOffsetColor = config.theme.ringOffsetColor(theme).DEFAULT;
-  const ringColor = config.theme.ringColor(theme).DEFAULT;
+function mergeUserConfig(config, userConfig) {
+  //   if (userConfig.theme && userConfig.theme.extend) {
+  //     for (key in userConfig.theme.extend) {
+  //       config.theme[key] = typeof config.theme[key] === 'function'
+  //         ?
+  //     }
+  //   }
+  return {
+    ...config,
+    ...userConfig,
+  };
+}
+
+export function init(container = document.querySelector('body'), userConfig = {}) {
+  const classObserver = new MutationObserver(onObserve);
+  const configMerged = mergeUserConfig(config, userConfig);
+  parse = getParser(configMerged);
 
   observeClasses(classObserver, container);
   const initialStyles = getInitialClasses();
-  appendStyle(`
-/*! modern-normalize v1.0.0 | MIT License | https://github.com/sindresorhus/modern-normalize */*,::after,::before{box-sizing:border-box}:root{-moz-tab-size:4;tab-size:4}html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji'}hr{height:0;color:inherit}abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Consolas,'Liberation Mono',Menlo,monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}::-moz-focus-inner{border-style:none;padding:0}:-moz-focusring{outline:1px dotted ButtonText}:-moz-ui-invalid{box-shadow:none}legend{padding:0}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}button{background-color:transparent;background-image:none}button:focus{outline:1px dotted;outline:5px auto -webkit-focus-ring-color}fieldset{margin:0;padding:0}ol,ul{list-style:none;margin:0;padding:0}html{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";line-height:1.5}body{font-family:inherit;line-height:inherit}*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}hr{border-top-width:1px}img{border-style:solid}textarea{resize:vertical}input::placeholder,textarea::placeholder{color:#9ca3af}[role=button],button{cursor:pointer}table{border-collapse:collapse}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}button,input,optgroup,select,textarea{padding:0;line-height:inherit;color:inherit}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}
-  * {
-    --tw-ring-inset: var(--tw-empty,/*!*/ /*!*/);
-    --tw-ring-offset-width: 0px;
-    --tw-ring-offset-color: ${ringOffsetColor || '#fff'};
-    --tw-ring-color: ${ringColor};
-    --tw-ring-offset-shadow: 0 0 #0000;
-    --tw-ring-shadow: 0 0 #0000;
-    --tw-shadow: 0 0 #0000;
-  }
-` + initialStyles);
 
-  return () => classObserver.disconnect();
+  appendStyle(preflight + variables(configMerged) + initialStyles);
+
+  return {
+    unsubscribe: () => classObserver.disconnect(),
+    parse,
+    config: configMerged,
+  };
 }
-
-export { parse, classes, config };
 
 export default init;

@@ -1,8 +1,9 @@
 version: 1.1
 nodes:
   toggle = () => document.getElementById('test').classList.toggle(className)
-  button = require("/utils/sheet.js").button
-  input = require("/utils/sheet.js").input
+  button = require("/lib/sheet.js").button
+  input = require("/lib/sheet.js").input
+  customConfig = {}
 layout:
 [,
   [,,
@@ -33,6 +34,16 @@ layout:
   [,,
     {
       "node": "input"
+    }
+  ],,
+  [,,
+    {
+      "value": "Custom config:"
+    }
+  ],
+  [,,
+    {
+      "node": "customConfig"
     }
   ]
 ]

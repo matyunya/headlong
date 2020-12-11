@@ -1,7 +1,3 @@
----
-title: H E A D L O N G
----
-
 # Headlong
 
 _Tailwind CSS on the fly without PostCSS_
@@ -20,15 +16,9 @@ Headlong was built entirely using [Ellx](https://ellx.io). Here's [source code](
 
 ## Demo
 
-<small>Type any utility class name into the input. If it exists you will see the definition below. Click the button to toggle the class on the test div.</small>
+<small>Type any utility class name into the input. Click the button to toggle the class on the test div.</small>
 
 { className = input({ label: "New class name", value: "text-fuchsia-500", size: 4 })}
-
-<div class="p-4 mb-8 block border font-mono text-xs dark:text-gray-100 text-gray:500 cursor-pointer">
-
-{ parse(className) }
-
-</div>
 
 { button({ label: "toggle", onClick: toggle, disabled: !className })}
 
@@ -41,20 +31,16 @@ $ npm install headlong
 ```
 
 ```
-import { init, config } from "headlong";
+import headlong from "headlong";
 // or in ellx
-import { init, config } from "~matyunya/headlong";
+import headlong from "~matyunya/headlong";
 
-// directly modify the config
-// this is a temporary solution until "extend" is added.
-config.theme.colors.green.900 = "#meGreen";
-
-const disconnect = init();
+const { unsubscribe, config, classes, parse, apply } = headlong();
 
 // ...
 
 // stop listening to changes when you're done
-disconnect();
+unsubscribe();
 ```
 
 ## Missing features
@@ -62,6 +48,7 @@ disconnect();
 - [x] Ring
 - [x] Divide
 - [x] Camelcased colors ("light-blue" is lightBlue in the default palette)
+- [ ] `@apply` as a function
 - [ ] Combined selectors like ("sm:dark:hover:")
 - [ ] Negated values using css `calc` function relying on PostCSS plugin
 - [ ] Keyframes customization
@@ -178,14 +165,14 @@ Please refer to Tailwind [documentation](https://tailwindcss.com/docs) for all a
   <div class="focus:outline-none text-sm w-24 py-3 rounded-md font-semibold text-white bg-blue-500 ring ring-blue-200 text-center hover:shadow">
     ring
   </div>
-  <div class="focus:outline-none text-sm w-24 py-3 rounded-md font-semibold text-white bg-blue-500 ring-4 ring-blue-200 text-center hover:shadow">
+  <div class="focus:outline-none text-sm w-24 py-3 rounded-md font-semibold text-white bg-blue-500 ring-4 hover:ring-8 duration-1000 cursor-pointer transform transition ring-blue-200 text-center hover:shadow">
     ring
   </div>
 </div>
 
 <div class="hidden">
 
-{ init() }
+{ init(document.getElementById('md'), customConfig) }
 
 </div>
 
