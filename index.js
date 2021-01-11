@@ -4,7 +4,7 @@ import keyframes from "./lib/keyframes.js";
 import { preflight, variables } from "./lib/styles.js";
 import { theme } from "./lib/selector.js";
 
-const onObserve = (process, appendStyle, filterClasses) => mutations => {
+const onObserve = (process, filterClasses, appendStyle, appendStyleMedia) => mutations => {
   let styles = [...new Set(
     mutations
       .filter(t => t.type === 'attributes')
@@ -13,19 +13,18 @@ const onObserve = (process, appendStyle, filterClasses) => mutations => {
       .filter(filterClasses)
   )]
     .map(process)
-    .filter(Boolean)
-    .join('\n');
+    .filter(Boolean);
 
-  styles += [...new Set(
+  styles = [...styles, [...new Set(
     mutations
       .filter(f => f.type === 'childList' && f.addedNodes.length && f.addedNodes[0].classList) // only works on a single node
       .map(i => (i.addedNodes[0].classList.value || "").split(' ')).flat().filter(filterClasses))
   ]
     .map(process)
-    .filter(Boolean)
-    .join('\n');
+    .filter(Boolean)];
 
-  appendStyle(styles);
+  appendStyle(styles.filter(s => !s.includes('@media')).join('\n'));
+  appendStyleMedia(styles.filter(s => s.includes('@media')).join('\n'));
 }
 
 const getInitialClasses = (process, filterClasses) => [...new Set(
@@ -35,8 +34,7 @@ const getInitialClasses = (process, filterClasses) => [...new Set(
 )]
   .filter(filterClasses)
   .map(process)
-  .filter(Boolean)
-  .join('\n');
+  .filter(Boolean);
 
 const observeClasses = (observer, container) => observer.observe(
   container,
@@ -74,21 +72,30 @@ function mergeUserConfig(config, userConfig) {
   };
 }
 
-const s = document.createElement('style');
-s.setAttribute('type', 'text/css');
-
-function appendStyle(css) {
-  if (!css) return;
-
-  if (s.styleSheet) {
-    s.styleSheet.cssText = css;
+function appendCssToEl(css, el) {
+  if (el.styleSheet) {
+    el.styleSheet.cssText = css;
   } else {
-    s.appendChild(document.createTextNode(css));
+    el.appendChild(document.createTextNode(css));
   }
-  document.head.appendChild(s);
+  document.head.appendChild(el);
 }
 
 export function init(userConfig, container = document.querySelector('body')) {
+  const s = document.createElement('style');
+  s.setAttribute('type', 'text/css');
+
+  const med = document.createElement('style');
+  med.setAttribute('type', 'text/css');
+
+  function appendStyleMedia(css) {
+    appendCssToEl(css, med);
+  }
+
+  function appendStyle(css) {
+    appendCssToEl(css, s);
+  }
+
   const classes = new Set();
   const filterClasses = i => Boolean(i) && !i.startsWith('svelte-') && !classes.has(i);
 
@@ -101,12 +108,13 @@ export function init(userConfig, container = document.querySelector('body')) {
     return css;
   }
 
-  const classObserver = new MutationObserver(onObserve(process, appendStyle, filterClasses));
+  const classObserver = new MutationObserver(onObserve(process, filterClasses, appendStyle, appendStyleMedia));
 
   observeClasses(classObserver, container);
   const initialStyles = getInitialClasses(process, filterClasses);
 
-  appendStyle(preflight + variables(configMerged) + initialStyles + keyframes);
+  appendStyle(preflight + variables(configMerged) + initialStyles.filter(s => !s.includes('@media')).join('\n') + keyframes);
+  appendStyleMedia(initialStyles.filter(s => s.includes('@media')).join('\n'));
 
   return {
     unsubscribe: () => classObserver.disconnect(),

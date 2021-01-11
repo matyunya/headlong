@@ -44,7 +44,8 @@ unsubscribe();
 - [x] "Extend" config section
 - [x] Preflight
 - [x] Container
+- [x] Min/max breakpoints, object, array notation breakpoints
 - [ ] `@apply` as a function
 - [ ] Combined selectors like ("sm:dark:hover:")
 - [ ] Negated values using css `calc` function relying on PostCSS plugin
-- [ ] Keyframes customization[]
+- [ ] Keyframes customization

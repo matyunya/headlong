@@ -18,7 +18,7 @@ Headlong was built entirely using [Ellx](https://ellx.io). Here's [source code](
 
 { className = input({ label: "New class name", value: "text-fuchsia-500", size: 4 })}
 
-<div class="text-xs block my-8 font-mono p-2 bg-gray-100 items-center shadow-lg">
+<div class="text-xs block my-8 font-mono p-2 bg-gray-100 dark:bg-gray-800 items-center shadow-lg">
 
 { parsed = headlong.parse(className) }
 
@@ -58,10 +58,12 @@ unsubscribe();
 - [x] "Extend" config section
 - [x] Preflight
 - [x] Container
+- [x] Min/max breakpoints, object, array notation breakpoints
 - [ ] `@apply` as a function
 - [ ] Combined selectors like ("sm:dark:hover:")
 - [ ] Negated values using css `calc` function relying on PostCSS plugin
 - [ ] Keyframes customization
+- [ ] Proper breakpoints
 
 ## Classes
 
