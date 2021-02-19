@@ -4,7 +4,7 @@
   "description": "Tailwind CSS on the fly",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild index.js --bundle --minify --target=chrome58,firefox57,safari11,edge16 >> dist/index.js"
+    "build": "esbuild index.js --bundle --minify --target=chrome58,firefox57,safari11,edge16 --format=esm >> dist/index.js"
   },
   "repository": {
     "type": "git",
