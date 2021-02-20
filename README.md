@@ -8,7 +8,7 @@ Tailwind CSS produces thousands of classes most of which will never be used. Cha
 
 **Headlong** is a runtime version of Tailwind CSS which requires no PostCSS nor purging. Instead of generating all the classes beforehand it adds classes on the fly to the stylesheet whenever they are introduced in the DOM.
 
-This library is not intended to replace the original Tailwind. Yet, there are environments where one cannot use PostCSS or maybe needs to interpolate _the living hell_ out of those class names, or play with configuration.
+This library is not intended to replace the original Tailwind. Yet, there are environments where one cannot use PostCSS or maybe needs to interpolate class names a lot, or play with configuration.
 
 Natural advantage of this approach is zero extra build time, _all_ classes are available by default, no need to enable responsive or whatever plugin.
 
@@ -36,6 +36,16 @@ const {
 unsubscribe();
 ```
 
+## Changelog
+
+2021/2/20
+- Disallow multiple instances of Headlong on the same page
+- Add "output" method
+- @apply for simple classes
+- Combined selectors
+- Fix container
+- Add :checked variant
+
 ## Roadmap
 
 - [x] Ring
@@ -45,7 +55,7 @@ unsubscribe();
 - [x] Preflight
 - [x] Container
 - [x] Min/max breakpoints, object, array notation breakpoints
-- [ ] `@apply` as a function
-- [ ] Combined selectors like ("sm:dark:hover:")
+- [x] `@apply` as a function (apart from combined variants just like in Tailwind 1.x)
+- [x] Combined variants like ("sm:dark:hover:")
 - [ ] Negated values using css `calc` function relying on PostCSS plugin
 - [ ] Keyframes customization

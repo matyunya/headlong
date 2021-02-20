@@ -1,10 +1,10 @@
 import getConfig from "./lib/config.js";
-import getParser from "./lib/parser.js";
+import getParser, { hasVariant } from "./lib/parser.js";
 import keyframes from "./lib/keyframes.js";
-import { preflight, variables } from "./lib/styles.js";
+import { preflight as preflightStyles, variables } from "./lib/styles.js";
 import { theme } from "./lib/selector.js";
 
-const onObserve = (process, filterClasses, appendStyle, appendStyleMedia) => mutations => {
+const onObserve = (process, filterClasses, append) => mutations => {
   let styles = [...new Set(
     mutations
       .filter(t => t.type === 'attributes')
@@ -23,14 +23,14 @@ const onObserve = (process, filterClasses, appendStyle, appendStyleMedia) => mut
         return f.type === 'childList' && f.addedNodes.length && f.addedNodes[0].classList
       })
       .map(i => {
-        let classes = [];
+        let c = [];
         const node = i.addedNodes[0]
         const all = node.getElementsByTagName('*');
 
         for (var i = -1, l = all.length; ++i < l;) {
-            classes.push((all[i].classList.value ||'').split(' '));
+            c.push((all[i].classList.value ||'').split(' '));
         }
-        return [...classes.flat(), ...(node.classList.value || '').split(' ')];
+        return [...c.flat(), ...(node.classList.value || '').split(' ')];
       })
       .flat()
     )
@@ -40,8 +40,7 @@ const onObserve = (process, filterClasses, appendStyle, appendStyleMedia) => mut
     .filter(Boolean)
   ];
 
-  appendStyle(styles.filter(s => !s.includes('@media')).join('\n'));
-  appendStyleMedia(styles.filter(s => s.includes('@media')).join('\n'));
+  append(styles);
 }
 
 const getInitialClasses = (process) => [...new Set(
@@ -96,15 +95,29 @@ function appendCssToEl(css, el) {
   } else {
     el.appendChild(document.createTextNode(css));
   }
-  document.head.appendChild(el);
 }
 
-export function init(userConfig, container = document.querySelector('body')) {
+export function init({
+  container = document.querySelector('body'),
+  classes: userClasses = new Set(),
+  config: userConfig = {},
+  preflight = true,
+} = {}) {
+  if (window && window.$$headlong) return window.$$headlong;
+
+  if (!(userClasses instanceof Set)) {
+    throw new Error('Classes must be instance of Set');
+  }
+
+  const classes = new Set(userClasses);
+
   const s = document.createElement('style');
   s.setAttribute('type', 'text/css');
+  document.head.appendChild(s);
 
   const med = document.createElement('style');
   med.setAttribute('type', 'text/css');
+  document.head.appendChild(med);
 
   function appendStyleMedia(css) {
     appendCssToEl(css, med);
@@ -114,8 +127,12 @@ export function init(userConfig, container = document.querySelector('body')) {
     appendCssToEl(css, s);
   }
 
-  const classes = new Set();
-  const filterClasses = i => Boolean(i) && typeof i === "string" && !i.startsWith('svelte-');
+  function append(styles) {
+    appendStyle(styles.filter(s => !s.includes('@media')).join('\n'));
+    appendStyleMedia(styles.filter(s => s.includes('@media')).join('\n'));
+  }
+
+  const filterClasses = i => Boolean(i) && !classes.has(i) && typeof i === "string";
 
   const configMerged = mergeUserConfig(getConfig(), userConfig);
   const parse = getParser(configMerged);
@@ -129,17 +146,51 @@ export function init(userConfig, container = document.querySelector('body')) {
   }
 
   const initialStyles = getInitialClasses(process, filterClasses);
-  appendStyle(preflight + variables(configMerged) + initialStyles.filter(s => !s.includes('@media')).join('\n') + keyframes);
-  appendStyleMedia(initialStyles.filter(s => s.includes('@media')).join('\n'));
+  appendStyle(
+    (preflight ? preflightStyles : "")
+    + variables(configMerged)
+    + keyframes
+  );
+  append(initialStyles);
 
-  const classObserver = new MutationObserver(onObserve(process, filterClasses, appendStyle, appendStyleMedia));
+  const classObserver = new MutationObserver(onObserve(process, filterClasses, append));
   observeClasses(classObserver, container);
 
-  return {
-    unsubscribe: () => classObserver.disconnect(),
+  function output() { // TODO: what output options do we need?
+    return {
+      classes: new Set(classes),
+      styles: `<style>${s.innerText}${med.innerText}</style>`.replace(/\n/, '')
+    };
+  }
+
+  window.$$headlong = {
+    unsubscribe: () => {
+      console.log('Headlong generated styles', output());
+      classObserver.disconnect();
+      window.$$headlong = null;
+      return output();
+    },
     parse,
     config: configMerged,
+    output,
+    apply: (selector, classList) => {
+      const arr = classList.split(' ');
+      const noVariantStyles = arr.filter(s => !hasVariant(s)).map(c => parse(c, true)).join('');
+      appendStyle(`${selector} { ${noVariantStyles} }`);
+
+      // Facing the same problem with @apply variant:class like Tailwind 1.x.
+      // Got to group all uninque variant groups, capture their styles separately,
+      // then apply variant groups on selector argument (which can be tricky if we allow arbitrary selector)
+      // so keeping it simple for now.
+
+      // const variantStyles = arr.filter(hasVariant).map(c => parse(c).replace(c.split(":").pop(), selector));
+      // append(variantStyles);
+
+      return `${selector} { ${noVariantStyles} }`;
+    }
   };
+
+  return window.$$headlong;
 }
 
 export default init;

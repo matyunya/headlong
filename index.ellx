@@ -14,7 +14,11 @@ nodes:
   $8 = headlong.parse("animation-pulse")
   $13 = headlong.parse("outline-none")
   $12 = headlong.parse("container")
-  $11 = customHeadlong.parse("text-primary-500")
+  $16 = headlong.parse("dark:sm:bg-red-500")
+  $18 = headlong.parse("sm:dark:bg-red-500")
+  $15 = headlong.apply(".button", "w-full p-2 dark:sm:bg-red-500 bg-white tracking-wide font-mono dark:from-gray-900 dark:via-gray-800 to-warm-gray-100 dark:to-warm-gray-800 hover:ring-1 ring-0 ring-blue-500 transition duration-150 shadow-sm rounded-sm")
+  $14 = headlong.output()
+  $17 = headlong.apply(".test-multiple-variants", "dark:sm:bg-red-500 dark:bg-green-500")
 layout:
 [
   [,
@@ -64,7 +68,7 @@ layout:
   ],
   [,
     {
-      "value": "Keeping it simple for now, everything below must be not false"
+      "value": "Keeping it simple for now, everything must not throw"
     }
   ],,
   [,
@@ -116,23 +120,50 @@ layout:
     {
       "node": "$12"
     }
+  ],,,
+  [,
+    {
+      "value": "This is a big one, allows to combine multiple variants: \"dark:sm:text-red-500\" or \"sm:dark:text-red-500\" should be equal"
+    }
+  ],
+  [,
+    {
+      "node": "$16"
+    }
+  ],
+  [,
+    {
+      "node": "$18"
+    }
   ],,
   [,
     {
-      "value": "Headlong with custom config:"
-    },,,
+      "value": "Output:"
+    },,,,
     {
-      "value": "Two instances on the same page are buggy"
+      "value": "Apply:"
+    }
+  ],
+  [,,,,,
+    {
+      "node": "$15"
     }
   ],
   [,
     {
-      "value": "// customHeadlong = init(customConfig)"
+      "node": "$14",
+      "expansion": {
+        "vertical": false,
+        "labelsTop": true,
+        "secondary": true,
+        "height": 70,
+        "width": 2
+      }
     }
   ],
-  [,
+  [,,,,,
     {
-      "node": "$11"
+      "node": "$17"
     }
   ]
 ]
