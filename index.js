@@ -66,7 +66,7 @@ function mergeUserConfig(config, userConfig) {
   const configTheme = theme(config.theme);
 
   if (userConfig.theme.extend) {
-    for (key in userConfig.theme.extend) {
+    for (const key in userConfig.theme.extend) {
       config.theme[key] = typeof config.theme[key] === 'function'
         ? {
         ...config.theme[key](configTheme),
