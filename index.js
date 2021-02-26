@@ -175,7 +175,12 @@ export function init({
     output,
     apply: (selector, classList) => {
       const arr = classList.split(' ');
-      const noVariantStyles = arr.filter(s => !hasVariant(s)).map(c => parse(c, true)).join('');
+      const noVariantStyles = arr
+        .filter(s => !hasVariant(s))
+        .map(c => parse(c, true))
+        .filter(Boolean)
+        .join('') || '';
+
       appendStyle(`${selector} { ${noVariantStyles} }`);
 
       // Facing the same problem with @apply variant:class like Tailwind 1.x.

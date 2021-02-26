@@ -1,6 +1,6 @@
 # Headlong
 
-_Tailwind CSS on the fly without PostCSS_
+## Tailwind CSS on the fly without PostCSS
 
 Tailwind CSS produces thousands of classes most of which will never be used. Changes to the Tailwind configuration might take seconds to take effect, and who has seconds to waste these days? There are [articles](https://nystudio107.com/blog/speeding-up-tailwind-css-builds) describing how to speed up Tailwind build times indicating the problem.
 
@@ -27,6 +27,21 @@ Headlong was built entirely using [Ellx](https://ellx.io). Here's [source code](
 { button({ label: "toggle", onClick: toggle, disabled: !parsed })}
 
 <span id="test" class="block ring hover:ring-8 transition duration-500 ring-red-100 p-4 my-8 font-mono hover:italic text-red-500 cursor-pointer hover:bg-light-blue-100 bg-opacity-0 hover:bg-opacity-50 rounded shadow-lg"> I am a Headlong test</span>
+
+
+### Apply
+
+Headlong exposes `apply` method mirroring Tailwind's `@apply` directive which allows to apply utility classes' styles to arbitrary css selectors.
+
+{ applySelector = input({ label: "Apply selector", value: "#applied", size: 4 })}
+
+{ applyClassName = input({ label: "Classes to apply", value: "text-fuchsia-500 italic", size: 4 })}
+
+<div id="applied" class="text-xs block my-8 font-mono p-2 bg-gray-100 dark:bg-gray-800 justify-center shadow-lg">
+
+{ appliedStyles = headlong.apply(applySelector, applyClassName) }
+
+</div>
 
 ## Installation and usage
 
