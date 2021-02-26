@@ -188,6 +188,12 @@ export function init({
       // then apply variant groups on selector argument (which can be tricky if we allow arbitrary selector)
       // so keeping it simple for now.
 
+      // apply('#mySelector', 'sm:text-red-500 text-green-500 dark:sm:text-yellow-500')
+      // should resolve to
+      // #mySelector { --tw-text-opacity: 1; color: rgba(239,68,68, var(--tw-text-opacity)); }
+      // @media (min-width: 640px) { #mySelector { --tw-text-opacity: 1; color: rgba(239,68,68, var(--tw-text-opacity)); } }
+      // @media (min-width: 640px) { .mode-dark #mySelector { --tw-text-opacity: 1; color: rgba(245,158,11, var(--tw-text-opacity)); } }
+
       // const variantStyles = arr.filter(hasVariant).map(c => parse(c).replace(c.split(":").pop(), selector));
       // append(variantStyles);
 
