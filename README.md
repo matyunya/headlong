@@ -20,15 +20,23 @@ Headlong was built entirely using [Ellx](https://ellx.io). Here's [source code](
 $ npm install headlong
 ```
 
-```
+```js
 import headlong from "headlong";
 
 const {
   unsubscribe,
   parse,
   config,
-  apply, // not quite there yet
-} = headlong(config, containerEl);
+
+  // returns { styles, classes } of styles string and set of classes
+  output,
+  apply,
+} = headlong(
+  config,
+  {
+    container, // container element
+    classes    // list of classes to ignore
+  });
 
 // ...
 
