@@ -1,6 +1,6 @@
 # Headlong
 
-_Tailwind CSS on the fly without PostCSS
+##Tailwind CSS on the fly without PostCSS
 
 [README](https://matyunya-headlong.ellx.app/)
 
