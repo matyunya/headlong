@@ -97,13 +97,15 @@ function appendCssToEl(css, el) {
   }
 }
 
+let headlong;
+
 export function init({
   container = document.querySelector('body'),
   classes: userClasses = new Set(),
   config: userConfig = {},
   preflight = true,
 } = {}) {
-  if (window && window.$$headlong) return window.$$headlong;
+  if (headlong) return headlong;
 
   if (!(userClasses instanceof Set)) {
     throw new Error('Classes must be instance of Set');
@@ -163,11 +165,11 @@ export function init({
     };
   }
 
-  window.$$headlong = {
+  headlong = {
     unsubscribe: () => {
       console.log('Headlong generated styles', output());
       classObserver.disconnect();
-      window.$$headlong = null;
+      headlong = null;
       return output();
     },
     parse,
@@ -201,7 +203,7 @@ export function init({
     }
   };
 
-  return window.$$headlong;
+  return headlong;
 }
 
 export default init;
